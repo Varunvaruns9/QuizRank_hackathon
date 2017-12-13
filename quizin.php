@@ -1,3 +1,8 @@
+<?php
+	session_start();
+	require_once('dbconfig/config.php');
+	//phpinfo();
+?>
 <!doctype html>
 <!--
   Material Design Lite
@@ -21,7 +26,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <title>QuizConnect Leaderboard</title>
+    <title>QuizRank</title>
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -43,12 +48,13 @@
     <!--
     <link rel="canonical" href="http://www.example.com/">
     -->
-
+    <script
+         src = "https://storage.googleapis.com/code.getmdl.io/1.0.6/material.min.js">
+      </script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.cyan-light_blue.min.css">
     <link rel="stylesheet" href="style/styles.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <style>
     #view-source {
       position: fixed;
@@ -65,39 +71,109 @@
     <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
       <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
         <div class="mdl-layout__header-row">
-          <span class="mdl-layout-title">Leaderboard</span>
+          <span class="mdl-layout-title">Quiz 1</span>
           <div class="mdl-layout-spacer"></div>
 
         </div>
       </header>
       <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
         <header class="demo-drawer-header">
-          <img src="images/user.jpg" class="demo-avatar">
+          <img src="images/useravatar.ico" class="demo-avatar">
           <div class="demo-avatar-dropdown">
-            <span>hello@example.com</span>
+            <span>&nbsp;&nbsp;<?php echo $_SESSION['username']; ?></span>
             <div class="mdl-layout-spacer"></div>
 
           </div>
         </header>
         <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Take Quiz</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>Feedback</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">delete</i>Signout</a>
+          <a class="mdl-navigation__link" href="email.php"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>Feedback</a>
+          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">delete</i>Sign Out</a>
           <div class="mdl-layout-spacer"></div>
           <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">help_outline</i><span class="visuallyhidden">Help</span></a>
         </nav>
       </div>
       <main class="mdl-layout__content mdl-color--grey-100">
         <div class="mdl-grid demo-content">
-          <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <img src="images/LeaderBoard.jpeg" class="lead" width ="50%" align="center">
-          </div>
 
 
+          <div class="demo-cards mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-grid mdl-grid--no-spacing">
 
+            <div class="demo-separator mdl-cell--1-col"></div>
+            <div class="demo-card-wide mdl-card mdl-shadow--2dp">
+              <div class="mdl-card__supporting-text">
+              <?php
+              ob_start();
+              if(!isset($_SESSION['acc']))
+              {
+                $_SESSION['acc']='1';
+                $_SESSION['score']='0';
+              }
+              else if(strcmp($_SESSION['acc'],'6')==0)
+              {
+                $s=$_POST['ans'];
+                $q=((int) $_SESSION['acc']) - 1;
+                 $query = "select * from Quiz1 where id = $q";
+                 $_SESSION['acc']=(string) $q;
+                 $query_run = mysqli_query($con,$query);
+                 $row = mysqli_fetch_array($query_run,MYSQLI_ASSOC);
+                 if(strcmp($row['answerOpt'], $row[$s])==0)
+                 {
+                   $_SESSION['score']=(string)((int)$_SESSION['score'] + 1);
+                 }
+              unset($_SESSION['acc']); ?>
+              <script type="text/javascript">
+              window.location.href = 'thankyou.php';
+              </script>
+                <?php
+              }
+              else {
+                if(isset($_POST['ans']))
+                {
+                  $s=$_POST['ans'];
+                  $y=(((int) $_SESSION['acc'])) - 1;
+                   $query = "select * from Quiz1 where id = $y";
+                   $query_run = mysqli_query($con,$query);
+                   $row = mysqli_fetch_array($query_run,MYSQLI_ASSOC);
+                   if(strcmp($row['answerOpt'], $row[$s])==0)
+                   {
+                     $_SESSION['score']=(string)((int)$_SESSION['score'] + 1);
+                   }
+                 }
+              }
+               $t=(int) $_SESSION['acc'];
+                $query = "select * from Quiz1 where id = $t";
+                $t+=1;
+                $_SESSION['acc']=(string) $t;
+                $query_run = mysqli_query($con,$query);
+
+                $row = mysqli_fetch_array($query_run,MYSQLI_ASSOC);
+                echo (string)($t-1).". ".$row['question'] ?>
+              </div>
+              <form action="quizin.php" method="POST">
+              <div>
+              <ul class="quizOptions">
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="ans" value="o1">  <?php echo $row['o1']?><br>
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="ans" value="o2">  <?php echo $row['o2']?><br>
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="ans" value="o3">  <?php echo $row['o3']?><br>
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="ans" value="o4">  <?php echo $row['o4']?><br>
+              </ul>
 
             </div>
+              <div class="mdl-card__actions mdl-card--border">
+                <a><!-- Raised button with ripple -->
+                  <input type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect" />
+                </a>
+                <!-- Flat button with ripple -->
+                <a>
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect"><font color="grey">
+                  Skip</font>
+                </button>
+              </a>
+                <!-- Raised button -->
+
+
           </div>
+        </form>
         </div>
       </main>
     </div>
@@ -149,8 +225,6 @@
         </defs>
       </svg>
     <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
   </body>
 </html>
+<?php ob_end_flush(); ?>
